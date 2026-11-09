@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pixel 5x5 Companion</title>
+    <title>Workout Companion</title>
     <style>
         :root {
             --bg-primary: #121212;
@@ -225,7 +225,7 @@
 <body>
 
     <header>
-        <h1>Pixel 5x5 Companion</h1>
+        <h1>Workout Companion</h1>
         <p>Offline Mobile Workout Progression Engine</p>
     </header>
 
@@ -252,10 +252,10 @@
     </div>
 
     <script>
-      // CORE STATE DATABASE ENGINE (Saves locally on your Pixel 7)
+      // CORE STATE DATABASE ENGINE (Saves locally)
       let state = {
           lastWorkoutType: 'B', // Will flip to A on initialization load
-          weights: { squat: 45, bench: 45, ohp: 45, row: 65, deadlift: 95 },
+          weights: { squat: 85, bench: 65, ohp: 55, row: 65, deadlift: 95 },
           fails: { squat: 0, bench: 0, ohp: 0, row: 0, deadlift: 0 }
       };
       
@@ -277,7 +277,7 @@
       
       // Initialize state from local device storage
       function init() {
-          const saved = localStorage.getItem('pixel_5x5_state');
+          const saved = localStorage.getItem('workout_tracker_state');
           if (saved) {
               state = JSON.parse(saved);
           }
@@ -287,7 +287,7 @@
       }
       
       function saveStateToDevice() {
-          localStorage.setItem('pixel_5x5_state', JSON.stringify(state));
+          localStorage.setItem('workout_tracker_state', JSON.stringify(state));
       }
       
       function toggleWorkoutType() {
@@ -423,7 +423,7 @@
               updateTimerDisplay(timeLeft);
               if (timeLeft <= 0) {
                   stopTimer();
-                  if (navigator.vibrate) navigator.vibrate(200); // Pixel Haptic Buzz Alert
+                  if (navigator.vibrate) navigator.vibrate(200); // Haptic Buzz Alert
               }
           }, 1000);
       }
