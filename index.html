@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel 5x5 Companion</title>
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-surface: #2d2d2d;
+            --accent: #34a853;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: #444444;
+            --accent-fail: #ea4335;
+            --accent-warn: #fbbc05;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .workout-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exercise-block {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #333;
+        }
+
+        .exercise-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .exercise-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .exercise-meta {
+            text-align: right;
+        }
+
+        .weight-display {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .plates-display {
+            font-size: 0.75rem;
+            color: var(--accent-warn);
+            margin-top: 2px;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .warmup-container {
+            background: #181818;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .warmup-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: var(--text-secondary);
+            border-bottom: 1px dashed #2a2a2a;
+        }
+
+        .warmup-row:last-child {
+            border-bottom: none;
+        }
+
+        .sets-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .set-bubble {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--bg-surface);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+        }
+
+        .set-bubble.complete {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .set-bubble.failed {
+            background-color: var(--accent-fail);
+            border-color: var(--accent-fail);
+            color: white;
+        }
+
+        .timer-card {
+            background-color: #1a237e;
+            border-color: #283593;
+            text-align: center;
+            display: none;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 8px 0;
+            font-family: monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        button:active {
+            opacity: 0.9;
+        }
+
+        button.btn-secondary {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            width: auto;
+        }
+
+        .action-container {
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Pixel 5x5 Companion</h1>
+        <p>Offline Mobile Workout Progression Engine</p>
+    </header>
+
+    <div id="timerCard" class="card timer-card">
+        <div class="section-label" style="color: #e8eaf6;">Rest Timer</div>
+        <div id="timerDisplay" class="timer-display">01:30</div>
+        <div class="timer-controls">
+            <button class="btn-secondary" onclick="adjustTimer(90)">+ 90s (Easy)</button>
+            <button class="btn-secondary" onclick="adjustTimer(180)">+ 3min (Hard)</button>
+            <button class="btn-secondary" style="background:#ea4335;" onclick="stopTimer()">Skip</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="workout-title">
+            <span id="workoutLabel">Workout A</span>
+            <button class="btn-secondary" onclick="toggleWorkoutType()">Switch Routine</button>
+        </div>
+        <div id="exercisesContainer"></div>
+    </div>
+
+    <div class="action-container">
+        <button onclick="completeWorkout()">Log & Complete Workout</button>
+    <\div>
+
+    <script>
+      // CORE STATE DATABASE ENGINE (Saves locally on your Pixel 7)
+      let state = {
+          lastWorkoutType: 'B', // Will flip to A on initialization load
+          weights: { squat: 45, bench: 45, ohp: 45, row: 65, deadlift: 95 },
+          fails: { squat: 0, bench: 0, ohp: 0, row: 0, deadlift: 0 }
+      };
+      
+      const exercisePool = {
+          'A': ['squat', 'bench', 'row'],
+          'B': ['squat', 'ohp', 'deadlift']
+      };
+      
+      const namesMap = {
+          squat: 'Barbell Squat',
+          bench: 'Flat Bench Press',
+          ohp: 'Overhead Press',
+          row: 'Barbell Row',
+          deadlift: 'Deadlift'
+      };
+      
+      let currentSessionData = {};
+      let timerInterval = null;
+      
+      // Initialize state from local device storage
+      function init() {
+          const saved = localStorage.getItem('pixel_5x5_state');
+          if (saved) {
+              state = JSON.parse(saved);
+          }
+          // Transition workout type sequence alternates natively
+          state.lastWorkoutType = state.lastWorkoutType === 'A' ? 'B' : 'A';
+          renderWorkout();
+      }
+      
+      function saveStateToDevice() {
+          localStorage.setItem('pixel_5x5_state', JSON.stringify(state));
+      }
+      
+      function toggleWorkoutType() {
+          state.lastWorkoutType = state.lastWorkoutType === 'A' ? 'B' : 'A';
+          renderWorkout();
+      }
+      
+      // Plate Calculation Math Core
+      function getPlatesStr(totalWeight) {
+          if (totalWeight <= 45) return "Empty Bar";
+          let sideWeight = (totalWeight - 45) / 2;
+          const plates = [45, 35, 25, 10, 5, 2.5];
+          let out = [];
+          plates.forEach(p => {
+              let qty = Math.floor(sideWeight / p);
+              if (qty > 0) {
+                  out.push(qty > 1 ? `${qty}x${p}` : `${p}`);
+                  sideWeight -= qty * p;
+              }
+          });
+          return out.map(p => `[${p}]`).join(' ');
+      }
+      
+      // Warmup Curve Generator Logic
+      function generateWarmups(exercise, workingWeight) {
+          if (workingWeight <= 45) return '<div class="warmup-row"><span>No warmups needed</span></div>';
+          let rows = `
+              <div class="warmup-row"><span>45 lbs (Empty Bar)</span><span>2 sets x 5 reps</span></div>
+          `;
+          let percentages = [0.40, 0.60, 0.80];
+          let reps =;
+          
+          if (exercise === 'deadlift') {
+              // Deadlifts do not use empty bar warmups traditionally due to floor height requirements
+              rows = ''; 
+              percentages = [0.40, 0.60, 0.80];
+          }
+      
+          percentages.forEach((pct, idx) => {
+              let raw = workingWeight * pct;
+              let rounded = Math.round(raw / 5) * 5;
+              if (rounded > 45) {
+                  rows += `
+                      <div class="warmup-row">
+                          <span>${rounded} lbs <span style="font-size:10px; color:var(--accent-warn);">${getPlatesStr(rounded)}</span></span>
+                          <span>1 set x ${reps[idx]} reps</span>
+                      </div>
+                  `;
+              }
+          });
+          return rows;
+      }
+      
+      function renderWorkout() {
+          const currentWorkout = state.lastWorkoutType;
+          document.getElementById('workoutLabel').innerText = `Workout ${currentWorkout}`;
+          const container = document.getElementById('exercisesContainer');
+          container.innerHTML = '';
+          
+          currentSessionData = {};
+          const activeExercises = exercisePool[currentWorkout];
+      
+          activeExercises.forEach(ex => {
+              const weight = state.weights[ex];
+              const totalSets = ex === 'deadlift' ? 1 : 5;
+              currentSessionData[ex] = Array(totalSets).fill(null);
+      
+              let exerciseHTML = `
+                  <div class="exercise-block">
+                      <div class="exercise-header">
+                          <div>
+                              <div class="exercise-name">${namesMap[ex]}</div>
+                              <div class="plates-display">Per Side: ${getPlatesStr(weight)}</div>
+                          </div>
+                          <div class="exercise-meta">
+                              <div class="weight-display">${weight} lbs</div>
+                              <div style="font-size:0.75rem; color:var(--text-secondary);">${totalSets}x5 Routine</div>
+                          </div>
+                      </div>
+                      
+                      <div class="section-label">Warm-up Schedule</div>
+                      <div class="warmup-container">${generateWarmups(ex, weight)}</div>
+      
+                      <div class="section-label">Working Sets Log</div>
+                      <div class="sets-row">
+              `;
+      
+              for (let i = 0; i < totalSets; i++) {
+                  exerciseHTML += `
+                      <div class="set-bubble" id="bubble-${ex}-${i}" onclick="cycleSet('${ex}', ${i})">•</div>
+                  `;
+              }
+      
+              exerciseHTML += `</div></div>`;
+              container.innerHTML += exerciseHTML;
+          });
+      }
+      
+      // Tap Behavior Engine
+      function cycleSet(exercise, setIndex) {
+          const bubble = document.getElementById(`bubble-${exercise}-${setIndex}`);
+          let currentVal = currentSessionData[exercise][setIndex];
+      
+          if (currentVal === null) {
+              currentSessionData[exercise][setIndex] = 5;
+              bubble.innerText = '5';
+              bubble.className = 'set-bubble complete';
+              startTimer(90); // Auto launch default rest clock
+          } else if (currentVal === 5) {
+              currentSessionData[exercise][setIndex] = 4;
+              bubble.innerText = '4';
+              bubble.className = 'set-bubble failed';
+              startTimer(180); // Auto launch max rest period on target drop
+          } else if (currentVal > 0) {
+              currentSessionData[exercise][setIndex]--;
+              bubble.innerText = currentSessionData[exercise][setIndex];
+          } else {
+              currentSessionData[exercise][setIndex] = null;
+              bubble.innerText = '•';
+              bubble.className = 'set-bubble';
+          }
+      }
+      
+      // Multi-tier Intelligent Timer System
+      function startTimer(seconds) {
+          clearInterval(timerInterval);
+          document.getElementById('timerCard').style.display = 'block';
+          let timeLeft = seconds;
+          
+          updateTimerDisplay(timeLeft);
+          timerInterval = setInterval(() => {
+              timeLeft--;
+              updateTimerDisplay(timeLeft);
+              if (timeLeft <= 0) {
+                  stopTimer();
+                  if (navigator.vibrate) navigator.vibrate(200); // Pixel Haptic Buzz Alert
+              }
+          }, 1000);
+      }
+      
+      function updateTimerDisplay(secs) {
+          let m = Math.floor(secs / 60).toString().padStart(2, '0');
+          let s = (secs % 60).toString().padStart(2, '0');
+          document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+      }
+      
+      function adjustTimer(secs) {
+          startTimer(secs);
+      }
+      
+      function stopTimer() {
+          clearInterval(timerInterval);
+          document.getElementById('timerCard').style.display = 'none';
+      }
+      
+      // Linear Overload Progression & Automating Deload Logic Engine
+      function completeWorkout() {
+          const currentWorkout = state.lastWorkoutType;
+          const activeExercises = exercisePool[currentWorkout];
+          let summaryMessages = [];
+      
+          activeExercises.forEach(ex => {
+              const sets = currentSessionData[ex];
+              const targetReps = 5;
+              let isPerfect = true;
+      
+              sets.forEach(reps => {
+                  if (reps !== targetReps) isPerfect = false;
+              });
+      
+              if (isPerfect) {
+                  state.weights[ex] += (ex === 'deadlift' ? 10 : 5); // Deadlifts advance by 10lbs natively
+                  state.fails[ex] = 0;
+                  summaryMessages.push(`${namesMap[ex]}: Success! Weight increased.`);
+              } else {
+                  state.fails[ex]++;
+                  if (state.fails[ex] === 3) {
+                      state.weights[ex] = Math.max(45, Math.round((state.weights[ex] * 0.9) / 5) * 5);
+                      state.fails[ex] = 0;
+                      summaryMessages.push(`${namesMap[ex]}: Failed 3x consecutively. Deload applied (-10%).`);
+                  } else {
+                      summaryMessages.push(`${namesMap[ex]}: Reps missed. Attempt ${state.fails[ex]}/3 logged at same weight.`);
+                  }
+              }
+          });
+      
+          alert("Session Logged!\n\n" + summaryMessages.join("\n"));
+          saveStateToDevice();
+          init(); // Rerender next workout module sequence
+      }
+      
+      window.onload = init;
+    </script>
+  </body>
+</html>
